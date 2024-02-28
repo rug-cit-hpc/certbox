@@ -1,0 +1,41 @@
+---
+
+- name: 'Assert required variables have been passed'
+  ansible.builtin.fail:
+    msg: 'Variable {{ item }} is not defined'
+  when: item not in vars
+  with_items: '{{ cert_client_required_vars }}'
+
+- name: 'Create script that updates the certificate'
+  ansible.builtin.template:
+    src: 'templates/cert_check.sh'
+    dest: '/etc/pki/cert_check.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+  become: true
+
+- name: 'Add script to crontab'
+  ansible.builtin.cron:
+    job: '/etc/pki/cert_check.sh'
+    name: 'CERTIFICATE_REPLACEMENT'
+    special_time: daily
+    user: 'root'
+  become: true
+
+- name: 'Create stub for adding the certificate to a service'
+  ansible.builtin.template:
+    src: 'templates/register_new_certificate.sh'
+    dest: '/etc/pki/register_new_certificate.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+    force: false
+  become: true
+
+- name: 'Call script for the first time'
+  become: true
+  ansible.builtin.shell:
+    cmd: '/etc/pki/cert_check.sh'
+
+...

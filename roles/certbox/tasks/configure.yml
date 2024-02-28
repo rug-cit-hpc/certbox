@@ -1,0 +1,20 @@
+---
+
+- name: 'Assert required certbox variables exist'
+  ansible.builtin.fail:
+    msg: 'Variable {{ item }} is not defined'
+  when: item not in vars
+  with_items:
+    - 'certbox_email'
+    - 'certbox_server'
+    - 'certbox_eab_hmac'
+    - 'certbox_eab_kid'
+
+- name: 'Check if specified certificate and request it if it meets the criteria'
+  ansible.builtin.include_tasks: single_cert.yml
+  vars:
+    cert: '{{ item }}'
+  loop: '{{ certbox_domains }}'
+  when: item['name'] is defined and item['domain'] is defined and item['user'] is defined
+
+...

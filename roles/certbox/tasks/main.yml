@@ -1,0 +1,9 @@
+---
+
+- name: 'Install certbot and dependencies'
+  ansible.builtin.include_tasks: install.yml
+
+- name: 'Configure certbox to request and renew certificates'
+  ansible.builtin.include_tasks: configure.yml
+
+...

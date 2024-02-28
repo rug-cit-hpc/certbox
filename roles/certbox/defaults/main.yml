@@ -1,0 +1,19 @@
+---
+
+certbox_email: '{{ lookup("ansible.builtin.env", "CERTBOX_EMAIL", default=Undefined) }}'
+certbox_acme_server: '{{ lookup("ansible.builtin.env", "CERTBOX_ACME_SERVER", default=Undefined) }}'
+certbox_eab_kid: '{{ lookup("ansible.builtin.env", "CERTBOX_EAB_KID", default=Undefined) }}'
+certbox_eab_hmac_key: '{{ lookup("ansible.builtin.env", "CERTBOX_EAB_HMAC_KEY", default=Undefined) }}'
+
+certbox_cmd: >-
+  "certbot certonly --standalone --non-interactive --agree-tos --email {{ certbox_email }} --key-type ecdsa"
+  "--server {{ certbox_acme_server }} --eab-kid {{ certbox_eab_kid }} --eab-hmac-key {{ certbox_eab_hmac_key }} "
+
+certbox_domains:
+  - name: example-cert
+    domain: example.hpc.rug.nl
+    user: example-cert-user
+    deployhook: echo Hi! # must not contain "
+    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFe44wkAw82wKT0cX1r6ydCkZGLnFMwZIynVALsIcDvo client1@aurel-project.hpc.rug.nl
+
+...

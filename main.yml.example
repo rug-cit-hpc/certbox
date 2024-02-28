@@ -1,0 +1,17 @@
+---
+
+- name: 'Deploy Certbox'
+  hosts: certbox-host
+  roles:
+    - certbox
+
+- name: 'Deploy Client'
+  hosts: client-host
+  roles:
+    - cert_client
+  vars:
+    cert_client_username: example-cert-user
+    cert_client_cert_name: example-cert
+    cert_client_key_name: example-key
+
+...

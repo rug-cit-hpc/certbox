@@ -1,0 +1,47 @@
+---
+
+- name: 'Check if domain resolves'
+  ansible.builtin.set_fact:
+    domain_exists: '{{ cert["domain"] is ansible.utils.resolvable }}' # TODO: check if this works as intended
+
+- name: 'Check if certificate is already present in certbox'
+  ansible.builtin.stat:
+    path: '/etc/letsencrypt/live/{{ cert["name"] }}'
+  register: certbox_dir
+  become: true
+
+- name: 'Set a deploy hook'
+  ansible.builtin.set_fact:
+    deploy_hook: >
+     "--deploy-hook \"chown -R {{ cert['user'] }}:{{ cert['user'] }} /etc/letsencrypt/live/{{ cert['name'] }} "
+     "/etc/letsencrypt/archive/{{ cert['name'] }}; chmod -R 0750 /etc/letsencrypt/live/{{ cert['name'] }} "
+     "/etc/letsencrypt/archive/{{ cert['name'] }}; {{ cert['deploy-hook'] | d('') }}\""
+
+- name: 'Create user for the certificate'
+  ansible.builtin.usecertbotr:
+    user: '{{ cert["user"] }}'
+    password: '!'
+    state: present
+  when: domain_exists
+  register: user
+  become: true
+
+- name: 'Add user ssh key'
+  ansible.posix.authorized_key:
+    user: '{{ cert["user"] }}'
+    key: '{{ cert["key"] }}'
+    state: present
+    exclusive: true
+  when: user['state'] is defined and user['state'] == 'present' and cert['key'] is defined
+  become: true
+
+- name: 'Request certificate if not already present, with auto renewal'
+#  become_flags: '-i'  # TODO: Testing only, remove after, used to allow certbot to work with self signed certificates
+  ansible.builtin.command:
+    cmd: '{{ certbox_cmd }} --domain {{ cert["domain"] }} --cert-name {{ cert["name"] }} {{ deploy_hook }}'
+  when: domain_exists and not certbox_dir.stat.exists
+  register: certbot_output
+  changed_when: certbot_output == 0
+  become: true
+
+...

@@ -1,0 +1,11 @@
+---
+
+cert_client_required_vars:
+  - cert_client_certbox_domain
+  - cert_client_username
+  - cert_client_cert_name
+  - cert_client_key_name
+
+cert_client_certbox_domain: localhost
+
+...
