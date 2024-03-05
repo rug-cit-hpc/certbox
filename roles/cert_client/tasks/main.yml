@@ -14,6 +14,7 @@
     group: 'root'
     mode: '0700'
   become: true
+  register: script_update
 
 - name: 'Add script to crontab'
   ansible.builtin.cron:
@@ -37,5 +38,6 @@
   become: true
   ansible.builtin.shell:
     cmd: '/etc/pki/cert_check.sh'
+  when: script_update.changed
 
 ...
