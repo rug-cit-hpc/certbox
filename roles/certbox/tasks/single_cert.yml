@@ -30,9 +30,9 @@
 - name: 'Set a deploy hook'
   ansible.builtin.set_fact:
     deploy_hook: >
-     "--deploy-hook \"chown -R {{ cert['user'] }}:{{ cert['user'] }} /etc/letsencrypt/live/{{ cert['name'] }} "
-     "/etc/letsencrypt/archive/{{ cert['name'] }}; chmod -R 0750 /etc/letsencrypt/live/{{ cert['name'] }} "
-     "/etc/letsencrypt/archive/{{ cert['name'] }}; {{ cert['deploy-hook'] | d('') }}\""
+     --deploy-hook "chown -R {{ cert['user'] }}:{{ cert['user'] }} /etc/letsencrypt/live/{{ cert['name'] }} 
+     /etc/letsencrypt/archive/{{ cert['name'] }}; chmod -R 0750 /etc/letsencrypt/live/{{ cert['name'] }}
+     /etc/letsencrypt/archive/{{ cert['name'] }}; {{ cert['deploy-hook'] | d('') }}"
 
 - name: 'Create user for the certificate'
   ansible.builtin.user:

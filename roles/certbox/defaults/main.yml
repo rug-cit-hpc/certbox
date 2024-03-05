@@ -6,8 +6,8 @@ certbox_eab_kid: '{{ lookup("ansible.builtin.env", "CERTBOX_EAB_KID", default=Un
 certbox_eab_hmac_key: '{{ lookup("ansible.builtin.env", "CERTBOX_EAB_HMAC_KEY", default=Undefined) }}'
 
 certbox_cmd: >-
-  "certbot certonly --standalone --non-interactive --agree-tos --email {{ certbox_email }} --key-type ecdsa"
-  "--server {{ certbox_acme_server }} --eab-kid {{ certbox_eab_kid }} --eab-hmac-key {{ certbox_eab_hmac_key }} "
+  certbot certonly --standalone --non-interactive --agree-tos --email {{ certbox_email }} --key-type ecdsa
+  --server {{ certbox_acme_server }} --eab-kid {{ certbox_eab_kid }} --eab-hmac-key {{ certbox_eab_hmac_key }}
 
 certbox_allowed_domains:
   - 'hpc.rug.nl'
