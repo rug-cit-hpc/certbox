@@ -1,8 +1,25 @@
 ---
 
+- name: 'Check if domain matches the allowed list'
+  ansible.builtin.set_fact:
+    domain_matches_allowed: false
+
+- name: 'Check if domain matches the allowed list'
+  ansible.builtin.set_fact:
+    domain_matches_allowed: true
+  when: cert["domain"].endswith(allowed_domain)
+  loop: '{{ certbox_allowed_domains }}'
+  loop_control:
+    loop_var: allowed_domain
+
+- name: 'Stop if the domain does not match the allowed list'
+  ansible.builtin.fail:
+    msg: 'This domain does not match the allowed list: {{ cert["domain"] }}'
+  when: not domain_matches_allowed
+
 - name: 'Check if domain resolves'
   ansible.builtin.set_fact:
-    domain_exists: '{{ cert["domain"] is ansible.utils.resolvable }}' # TODO: check if this works as intended
+    domain_exists: '{{ cert["domain"] is ansible.utils.resolvable }}' # TODO: check if this works for private domains as well
 
 - name: 'Check if certificate is already present in certbox'
   ansible.builtin.stat:
@@ -18,7 +35,7 @@
      "/etc/letsencrypt/archive/{{ cert['name'] }}; {{ cert['deploy-hook'] | d('') }}\""
 
 - name: 'Create user for the certificate'
-  ansible.builtin.usecertbotr:
+  ansible.builtin.user:
     user: '{{ cert["user"] }}'
     password: '!'
     state: present
@@ -36,7 +53,6 @@
   become: true
 
 - name: 'Request certificate if not already present, with auto renewal'
-#  become_flags: '-i'  # TODO: Testing only, remove after, used to allow certbot to work with self signed certificates
   ansible.builtin.command:
     cmd: '{{ certbox_cmd }} --domain {{ cert["domain"] }} --cert-name {{ cert["name"] }} {{ deploy_hook }}'
   when: domain_exists and not certbox_dir.stat.exists

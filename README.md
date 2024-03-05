@@ -10,8 +10,9 @@ configurations for services to retrieve the certificates from it.
 
 The Certbox machines is a wrapper around [certbot](https://certbot.eff.org/). It first installs certbot 
 through snap (the recommended install procedure), and then, for each configured certificate, it asserts
-the domain is resolvable, and then it requests the certificate through certbot. Since certbot 
-automatically takes care of renewing the certificates with a systemd timer, Certbox also does this.
+that the domain matches a configured allowed domain list, abd that it is resolvable, and then it requests
+the certificate through certbot. Since certbot automatically takes care of renewing the certificates with 
+a systemd timer, Certbox also does this.
 
 Compared to a normal certbot installation, Certbox associates each certificate with its specified user,
 creating it if does not exist yet. This ensures that each service can only access the certificate that 
@@ -69,6 +70,14 @@ is missing, the role will not execute and show an error instead.
 
 The `certbox_cmd` parameters is used to adjust the command passed to certbot. This should not be
 modified (unless you know what you are doing). 
+
+The parameter `certbox_allowed_domains` specifies a list of domains for which Certbox will be allowed 
+to request certificates. For a domain to be eligible for that, it must end with any of elements of 
+this parameter. 
+
+E.g. if the `hpc.rug.nl` value is the only element for this parameter, Certbox will create 
+certificates for the domain `portal.hb.hpc.rug.nl` or anything ending with `hpc.rug.nl`, but no
+other domains.
 
 The last parameter `certbox_domains` configures what certificates Certbox requests. It must be a
 list parameter, where each entry must contain the following attributes:
