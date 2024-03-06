@@ -19,7 +19,7 @@
 
 - name: 'Check if domain resolves'
   ansible.builtin.set_fact:
-    domain_exists: '{{ cert["domain"] is ansible.utils.resolvable }}' # TODO: check if this works for private domains as well
+    domain_exists: '{{ cert["domain"] is ansible.utils.resolvable }}' # this works by using the python socket module
 
 - name: 'Check if certificate is already present in certbox'
   ansible.builtin.stat:
