@@ -9,10 +9,10 @@ configurations for services to retrieve the certificates from it.
 ### Certbox
 
 The Certbox machines is a wrapper around [certbot](https://certbot.eff.org/). It first installs certbot 
-through snap (the recommended install procedure), and then, for each configured certificate, it asserts
-that the domain matches a configured allowed domain list, abd that it is resolvable, and then it requests
-the certificate through certbot. Since certbot automatically takes care of renewing the certificates with 
-a systemd timer, Certbox also does this.
+through pip, and then, for each configured certificate, it asserts that the domain matches a configured
+allowed domain list, abd that it is resolvable, and then it requests the certificate through certbot. 
+Since certbot automatically takes care of renewing the certificates with a systemd timer, Certbox also 
+does this.
 
 Compared to a normal certbot installation, Certbox associates each certificate with its specified user,
 creating it if does not exist yet. This ensures that each service can only access the certificate that 

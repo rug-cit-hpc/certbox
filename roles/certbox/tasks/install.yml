@@ -6,49 +6,57 @@
     state: absent
   become: true
 
-- name: 'Install latest epel repo version'
+- name: 'Install required python version'
   ansible.builtin.dnf:
     name:
-      - 'dnf-utils'
-      - 'epel-release'
-    state: latest
+      - python3.11 >= 3.11.5
+      - augeas-libs >= 1.13.0
+    state: present
     update_cache: true
   become: true
 
-- name: 'Install latest snap version'
+- name: 'Remove old certbot packages'
   ansible.builtin.dnf:
-    name: 'snapd'
+    name: certbot
+    state: removed
+  become: true
+
+- name: 'Create virtual environment'
+  ansible.builtin.pip:
+    name: pip
     state: latest
-    update_cache: true
-  become: true
-
-- name: 'Start snapd service'
-  ansible.builtin.service:
-    name: 'snapd'
-    enabled: true
-    state: started
-  become: true
-
-- name: 'Allow snap classic mode by linking the correct file'
-  ansible.builtin.file:
-    src: '/var/lib/snapd/snap'
-    dest: '/snap'
-    state: link
+    virtualenv: '/opt/certbot/'
+    virtualenv_command: 'python3 -m venv'
   become: true
 
 - name: 'Install latest certbot version'
-  community.general.snap:
-    name: 'certbot'
-    classic: true
-    channel: latest
-    state: present
+  ansible.builtin.pip:
+    name: certbot
+    extra_args: 'certbot'
+    virtualenv: '/opt/certbot/'
   become: true
 
 - name: 'Link certbot to folder in root path'
   ansible.builtin.file:
-    src: '/snap/bin/certbot'
+    src: '/opt/certbot/bin/certbot'
     dest: '/usr/bin/certbot'
     state: link
+  become: true
+
+- name: 'Add renew job to crontab'
+  ansible.builtin.cron:
+    job: 'certbot renew'
+    name: 'CERTBOT_RENEW'
+    special_time: daily
+    user: 'root'
+  become: true
+
+- name: 'Add update job to crontab'
+  ansible.builtin.cron:
+    job: '/opt/certbot/bin/pip install --upgrade certbot'
+    name: 'CERTBOT_UPDATE'
+    special_time: monthly
+    user: 'root'
   become: true
 
 - name: 'Allow certificate folder to be read by all users'
